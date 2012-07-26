@@ -26,21 +26,20 @@ table cats (
 7 cats;
 --- out
 cats
-      id      friend
-      96371   44
-      170828  37
-      577303  NULL
-      692194  20
-      749901  23
-      785799  44
-      870465  20
+     id  friend
+     96371   44
+     170828  44
+     577303  37
+     692194  37
+     749901  20
+     785799  23
+     870465  20
 dogs
-      id      age
-      20      -224492
-      23      -239639
-      37      424094
-      44      -64078
-
+     id  age
+     20  45228
+     23  -109314
+     37  68585
+     44  459066
 
 
 === TEST 2: text ref
@@ -57,22 +56,21 @@ table cats (
 8 cats;
 --- out
 cats
-      id      friend_grades
-      96371   B
-      170828  B
-      368766  D
-      577303  D
-      692194  B
-      749901  NULL
-      785799  B
-      870465  D
+     id  friend_grades
+     96371   A
+     170828  B
+     368766  B
+     577303  B
+     692194  D
+     749901  D
+     785799  B
+     870465  D
 dogs
-      id      grades
-      6       B
-      16      D
-      22      A
-      27      B
-
+     id  grades
+     7   B
+     8   D
+     44  A
+     48  B
 
 
 === TEST 3: text ref (not null on foreign keys)
@@ -200,3 +198,51 @@ dogs
       40      38
       44      38
 
+
+
+=== TEST 7: int ref unique
+--- src
+table dogs (
+    id serial 1..50;
+    self_id references dogs.id not null unique;
+)
+4 dogs;
+--- out
+dogs
+      id      self_id
+      19      44
+      38      40
+      40      38
+      44      38
+
+
+
+=== TEST 8: text ref (not null unique on foreign keys)
+--- src
+table dogs (
+    id serial 1..50;
+    grades text /[A-Z][a-z]/ not null;
+)
+table cats (
+    id serial;
+    friend_grades references dogs.grades not null unique;
+)
+8 dogs;
+4 cats;
+--- out
+cats
+     id  friend_grades
+     96371   Ee
+     170828  Fk
+     749901  Ld
+     870465  Ee
+dogs
+     id  grades
+     8   Jt
+     20  Gu
+     23  Cc
+     29  Ye
+     31  Ld
+     32  Ee
+     48  Gu
+     49  Fk

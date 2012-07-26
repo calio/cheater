@@ -206,26 +206,44 @@ sub gen_column {
 sub pick_elems ($$$) {
     my ($set, $attrs, $m) = @_;
 
-    my $not_null;
+    my ($not_null, $unique);
     for (@$attrs) {
         if ($_ eq 'not null') {
             $not_null = 1;
-            last;
+            #last;
+        } elsif ($_ eq 'unique') {
+            $unique = 1;
         }
+
     }
 
     my $n = @$set;
     my @res;
+    my %hist;
     for (1..$m) {
-        if (! $not_null) {
-            if ((int rand 10) == 0) {
-                push @res, undef;
-                next;
-            }
-        }
+        my $k = 0;
+        my $var;
+        while (1) {
+            my $i = int rand $n;
+            $var =  $set->[$i];
 
-        my $i = int rand $n;
-        push @res, $set->[$i];
+            #warn($i, " ", $var);
+            if (++$k > 10_000) {
+                die "ERROR: Too many attempts failed when pick elems.\n";
+            }
+
+            if ($not_null && !defined($var)) {
+                continue;
+            }
+
+            if ($unique && $hist{$var}) {
+                continue;
+            }
+
+            last;
+        }
+        #warn($var);
+        push @res, $var;
     }
 
     return \@res;
